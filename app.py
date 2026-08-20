@@ -46,7 +46,7 @@ st.markdown(
 )
 
 st.title("AI Instrument Separator")
-st.write("Isolate individual track components (Vocals, Drums, Bass, Guitar, Piano, and Other) from audio files using deep learning.")
+st.write("Isolate individual track components (Drums, Bass, Guitar, Vocals, Piano, and Other) from audio files using deep learning.")
 
 # File Upload Section
 uploaded_file = st.file_uploader("Choose an audio file (MP3/WAV)", type=["mp3", "wav"])
@@ -92,12 +92,19 @@ if input_path and os.path.exists(input_path):
                 output_dir = "separated_instruments"
                 os.makedirs(output_dir, exist_ok=True)
                 
-                # Order corresponding to Meta's htdemucs_6s model output
-                instrument_names = ["Drums", "Bass", "Other", "Vocals", "Guitar", "Piano"]
+                # Native output mapping from htdemucs_6s:
+                # 0: Drums, 1: Bass, 2: Other, 3: Vocals, 4: Guitar, 5: Piano
+                native_order = ["Drums", "Bass", "Other", "Vocals", "Guitar", "Piano"]
+                mapped_sources = dict(zip(native_order, sources))
+                
+                # Desired display order
+                display_order = ["Drums", "Bass", "Guitar", "Vocals", "Piano", "Other"]
+                
                 st.success("Instrument separation complete.")
                 
-                # Display output audio players
-                for source, name in zip(sources, instrument_names):
+                # Display output audio players in the requested sequence
+                for name in display_order:
+                    source = mapped_sources[name]
                     file_path = os.path.join(output_dir, f"{name.lower()}.wav")
                     save_audio(source.cpu(), file_path, samplerate=model.samplerate)
                     

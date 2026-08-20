@@ -2,7 +2,6 @@ import os
 import sys
 import torch
 import streamlit as st
-import yt_dlp
 from demucs.apply import apply_model
 from demucs.pretrained import get_model
 from demucs.audio import AudioFile, save_audio
@@ -10,25 +9,41 @@ from demucs.audio import AudioFile, save_audio
 # Page Configuration
 st.set_page_config(page_title="AI Instrument Separator", layout="centered")
 
-# Custom Light Blue Sleek Styling (CSS)
+# Custom Darker Blue & Musical Note Background Styling (CSS)
 st.markdown(
     """
     <style>
+    /* Full-page background with subtle musical notes overlay */
     .stApp {
-        background-color: #f0f4f8;
+        background-color: #e2ebf3;
+        background-image: linear-gradient(rgba(226, 235, 243, 0.88), rgba(226, 235, 243, 0.88)), 
+                          url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+
+    /* Darker Blue Primary Buttons */
     div.stButton > button {
-        background-color: #0066cc;
-        color: white;
+        background-color: #004080 !important;
+        color: white !important;
         border-radius: 6px;
         border: none;
-        padding: 8px 16px;
-        font-weight: 500;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
     }
     div.stButton > button:hover {
-        background-color: #0052a3;
-        color: white;
+        background-color: #002b55 !important;
+        color: white !important;
+    }
+
+    /* Card styling for readability over background */
+    .stFileUploader {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 15px;
+        border-radius: 10px;
     }
     </style>
     """,
@@ -36,45 +51,21 @@ st.markdown(
 )
 
 st.title("AI Instrument Separator")
-st.write("Isolate individual track components (Vocals, Drums, Bass, and Other) from audio files or YouTube links using deep learning.")
+st.write("Isolate individual track components (Vocals, Drums, Bass, and Other) from audio files using deep learning.")
 
-# Input Method Selection
-input_option = st.radio("Select Input Source:", ["Upload Audio File", "YouTube URL"])
+# File Upload Section
+uploaded_file = st.file_uploader("Choose an audio file (MP3/WAV)", type=["mp3", "wav"])
 
 input_path = None
 temp_dir = "temp_input"
 os.makedirs(temp_dir, exist_ok=True)
 
-if input_option == "Upload Audio File":
-    uploaded_file = st.file_uploader("Choose an audio file", type=["mp3", "wav"])
-    if uploaded_file is not None:
-        input_path = os.path.join(temp_dir, uploaded_file.name)
-        with open(input_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-        st.audio(input_path)
-
-else:
-    youtube_url = st.text_input("Paste YouTube Link:")
-    if youtube_url:
-        if st.button("Fetch YouTube Audio"):
-            with st.spinner("Extracting audio from YouTube..."):
-                try:
-                    ydl_opts = {
-                        'format': 'bestaudio/best',
-                        'outtmpl': os.path.join(temp_dir, 'yt_audio.%(ext)s'),
-                        'postprocessors': [{
-                            'key': 'FFmpegExtractAudio',
-                            'preferredcodec': 'mp3',
-                            'preferredquality': '192',
-                        }],
-                    }
-                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                        ydl.download([youtube_url])
-                    input_path = os.path.join(temp_dir, "yt_audio.mp3")
-                    st.success("YouTube audio extracted successfully.")
-                    st.audio(input_path)
-                except Exception as e:
-                    st.error(f"Failed to process YouTube URL: {e}")
+if uploaded_file is not None:
+    input_path = os.path.join(temp_dir, uploaded_file.name)
+    with open(input_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    
+    st.audio(input_path)
 
 # Run AI Separation
 if input_path and os.path.exists(input_path):
@@ -109,7 +100,7 @@ if input_path and os.path.exists(input_path):
                 instrument_names = ["Drums", "Bass", "Other", "Vocals"]
                 st.success("Instrument separation complete.")
                 
-                # Display output players
+                # Display output audio players
                 for source, name in zip(sources, instrument_names):
                     file_path = os.path.join(output_dir, f"{name.lower()}.wav")
                     save_audio(source.cpu(), file_path, samplerate=model.samplerate)

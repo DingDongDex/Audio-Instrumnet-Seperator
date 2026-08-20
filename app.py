@@ -9,18 +9,13 @@ from demucs.audio import AudioFile, save_audio
 # Page Configuration
 st.set_page_config(page_title="AI Instrument Separator", layout="centered")
 
-# Custom Darker Blue & Musical Note Background Styling (CSS)
+# Custom Clean Solid Light-Blue & Darker Blue Accent Styling (CSS)
 st.markdown(
     """
     <style>
-    /* Full-page background with subtle musical notes overlay */
+    /* Clean solid light-blue background */
     .stApp {
         background-color: #e2ebf3;
-        background-image: linear-gradient(rgba(226, 235, 243, 0.88), rgba(226, 235, 243, 0.88)), 
-                          url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -39,9 +34,9 @@ st.markdown(
         color: white !important;
     }
 
-    /* Card styling for readability over background */
+    /* Container card styling */
     .stFileUploader {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         padding: 15px;
         border-radius: 10px;
     }

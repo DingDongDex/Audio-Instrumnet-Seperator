@@ -2,3 +2,4 @@ streamlit
 demucs
 torch
 torchaudio
+soundfile

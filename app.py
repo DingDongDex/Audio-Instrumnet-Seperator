@@ -46,7 +46,7 @@ st.markdown(
 )
 
 st.title("AI Instrument Separator")
-st.write("Isolate individual track components (Vocals, Drums, Bass, and Other) from audio files using deep learning.")
+st.write("Isolate individual track components (Vocals, Drums, Bass, Guitar, Piano, and Other) from audio files using deep learning.")
 
 # File Upload Section
 uploaded_file = st.file_uploader("Choose an audio file (MP3/WAV)", type=["mp3", "wav"])
@@ -65,10 +65,10 @@ if uploaded_file is not None:
 # Run AI Separation
 if input_path and os.path.exists(input_path):
     if st.button("Separate Instruments"):
-        with st.spinner("Processing audio with AI models... This may take 1-2 minutes."):
+        with st.spinner("Processing audio with 6-stem AI model... This may take 1-2 minutes."):
             try:
-                # Load Demucs neural network
-                model = get_model('htdemucs')
+                # Load Demucs 6-stem neural network (htdemucs_6s)
+                model = get_model('htdemucs_6s')
                 model.cpu()
                 
                 # Load audio data
@@ -92,7 +92,8 @@ if input_path and os.path.exists(input_path):
                 output_dir = "separated_instruments"
                 os.makedirs(output_dir, exist_ok=True)
                 
-                instrument_names = ["Drums", "Bass", "Other", "Vocals"]
+                # Order corresponding to Meta's htdemucs_6s model output
+                instrument_names = ["Drums", "Bass", "Other", "Vocals", "Guitar", "Piano"]
                 st.success("Instrument separation complete.")
                 
                 # Display output audio players
